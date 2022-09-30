@@ -53,6 +53,7 @@ public class EnemySpawaner : MonoBehaviour
         if (rate <= kingSpawnRate)
         {
             spawnedEnemy.GetComponent<Enemy>().MaxHealth = kingEnemyHealth;
+            Debug.Log("\"King\" µÓ¿Â");
         }
         else
         {

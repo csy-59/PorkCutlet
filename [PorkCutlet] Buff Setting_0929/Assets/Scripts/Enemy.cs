@@ -29,8 +29,8 @@ public class Enemy : MonoBehaviour
 
     private void Awake()
     {
-        gameObject.layer = LayerMask.NameToLayer("Enemey");
         _spawaner = transform.parent.GetComponent<EnemySpawaner>();
+        _material = GetComponent<Renderer>().material;
     }
 
     private void OnEnable()
@@ -39,6 +39,8 @@ public class Enemy : MonoBehaviour
         _fireStack = 0;
         _fireDamageToTake = 0;
         _currentHealth = MaxHealth;
+        transform.localScale = new Vector3(1f, 1f, 1f);
+        _material.color = originalColor;
     }
 
     public void TakeDamage(BuffState buff, float damage)
@@ -66,6 +68,7 @@ public class Enemy : MonoBehaviour
     private void GetDamage(float damage)
     {
         _currentHealth -= damage;
+        Debug.Log($"{name} : {_currentHealth}");
         if (_currentHealth <= 0)
         {
             StopAllCoroutines();
@@ -85,16 +88,20 @@ public class Enemy : MonoBehaviour
     private void GetFireDamage()
     {
         ++_fireStack;
+        Debug.Log($"{name} : {_fireStack}");
         if(_fireStack == 1)
         {
             _fireDamageToTake += _fireDamageCount;
+            StartCoroutine(FireDamageCoroutine());
         }
-        else
+        else if(_fireStack <= 10)
         {
             ++_fireDamageToTake;
         }
-
-        StartCoroutine(FireDamageCoroutine());
+        else
+        {
+            --_fireStack;
+        }
     }
 
     private void GetPoisionDamage()
@@ -119,6 +126,10 @@ public class Enemy : MonoBehaviour
         {
             StartCoroutine(ChangeColor(Color.red));
             GetDamage(_fireDamage * _fireStack);
+            if(_fireDamageToTake > _fireDamageCount)
+            {
+                --_fireStack;
+            }
             --_fireDamageToTake;
             yield return new WaitForSeconds(_fireDamageDeltaTime);
         }
